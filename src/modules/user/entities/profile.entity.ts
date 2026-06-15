@@ -1,0 +1,29 @@
+import { BaseEntity } from "src/common/abstracts/base.entity";
+import { EntityName } from "src/common/enums/entity.enum";
+import {Column, CreateDateColumn, Entity, OneToOne } from "typeorm";
+import { UserEntity } from "./user.entity";
+
+@Entity(EntityName.profile)
+export class ProfileEntity extends BaseEntity{
+    @Column()
+    nick_name:string
+    @Column({nullable:true})
+    bio:string
+    @Column({nullable:true})
+    image_profile:string
+    @Column({nullable:true})
+    //background image
+    bg_image:string
+    @Column({nullable:true})
+    gender:string
+    @CreateDateColumn({nullable:true})
+    birthday:Date
+    @Column({nullable:true})
+    linkedIn_profile:string
+    @Column()
+    userId:number
+    @OneToOne(()=>UserEntity,user=>user.profile)
+    user:UserEntity
+    
+
+}
