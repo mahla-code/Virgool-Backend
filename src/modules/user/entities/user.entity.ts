@@ -19,6 +19,8 @@ export class UserEntity extends BaseEntity{
     phone:string
     @Column({unique:true,nullable:true})
     email:string
+    @Column({nullable:true,type:"numeric",default:0})
+    balance:number
     @Column({default:Roles.User})
     role:string
     @Column({nullable:true})
