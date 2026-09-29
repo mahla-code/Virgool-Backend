@@ -17,7 +17,6 @@ import { TokenService } from 'src/modules/auth/token.service';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { OtpEntity } from './entities/otp.entity';
 import { AuthMethod } from 'src/modules/auth/enums/method.enum';
-import e from 'express';
 import { FolllowEntity } from './entities/follow.entity';
 import { EntityName } from 'src/common/enums/entity.enum';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -163,7 +162,7 @@ export class UserService {
     const{phone}=this.TokenService.VerifyPhoneToken(token)
     if(phone !== new_phone)throw new BadRequestException(BadRequestMessage.SomeThingWentwrong)
     const otp=await this.CheckOtp(userId!,code)
-   if(otp.method !==AuthMethod.email)throw new BadRequestException(BadRequestMessage.SomeThingWentwrong)
+    if(otp.method !==AuthMethod.phone)throw new BadRequestException(BadRequestMessage.SomeThingWentwrong)
     await this.userRepository.update({id:userId},{
       phone,
       verify_phone:true,
