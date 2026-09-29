@@ -1,5 +1,4 @@
 import { BadRequestException, forwardRef, Inject, Injectable,NotFoundException,Scope } from '@nestjs/common';
-import { CreateBlogDto } from '../dto/create-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from '../entities/blog.entity';
 import { IsNull, Repository } from 'typeorm';
@@ -23,9 +22,9 @@ export class BlogCommentService {
   async create(createCommentDto: CreateCommentDto) {
     const {text,parentId,blogId}=createCommentDto
     const userId=this.request.user?.id
-    const blog=await this.blogService.checkExistBlogById(blogId)
+    await this.blogService.checkExistBlogById(blogId)
     let parent:null | BlogCommentEntity=null
-    if(parentId && isNaN(parentId)){
+    if(parentId && !isNaN(parentId)){
       parent=await this.blogCommentrepository.findOneBy({id:+parentId})
     }
     await this.blogCommentrepository.insert({
