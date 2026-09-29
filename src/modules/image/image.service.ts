@@ -53,7 +53,7 @@ export class ImageService {
   const image=await this.findOne(id)
   await this.imageRepository.remove(image)
   return {
-    mesage:PublicMessage.deleted
+    message:PublicMessage.deleted
   }
   }
 }
