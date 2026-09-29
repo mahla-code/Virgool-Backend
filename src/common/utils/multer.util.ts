@@ -25,7 +25,7 @@ export function MulterFileName(req:Request,file:multerfile,callback:CallbackFile
     }
 }
 function isValidImageFormat(ext:string){
-    return ['.png','.jpg','jpeg'].includes(ext)
+    return ['.png','.jpg','.jpeg'].includes(ext)
 
 }
 export function MulterStorage(foldername:string){
