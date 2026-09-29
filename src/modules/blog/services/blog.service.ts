@@ -3,7 +3,7 @@ import { CreateBlogDto, FilterBlogDto } from '../dto/create-blog.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from '../entities/blog.entity';
-import { DataSource, FindOptionsWhere, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateSlug, randomId } from 'src/common/utils/function.util';
 import { REQUEST } from '@nestjs/core';
 import type { Request } from 'express';
@@ -93,14 +93,14 @@ export class BlogService {
     if(search){
       if(where.length>0) where+=' AND '
       search=`%${search}%`
-      where+='CONCAT(blog.title,blog.description,blog.concat ILIKE:search'
+      where+='CONCAT(blog.title,blog.description,blog.content) ILIKE:search'
     }
     const [blogs,count]=await this.blogrepository.createQueryBuilder(EntityName.blog)
     .leftJoin("blog.categories","categories")
     .leftJoin("categories.category","category")
     .leftJoin("blog.author","author")
     .leftJoin("author.profile","profile")
-    .addSelect(["categories.id","categoty.title","author.username","author.id","profile.nickname"])
+    .addSelect(["categories.id","category.title","author.username","author.id","profile.nickname"])
     .where(where,{category,search})
     .loadRelationCountAndMap("blog.likes","blog.likes")
     .loadRelationCountAndMap("blog.bookmarks","blog.bookmarks")
@@ -144,7 +144,7 @@ export class BlogService {
       .leftJoin("author.profile","profile")
       .addSelect([
         "categories.id",
-        "categoty.title",
+        "category.title",
         "author.username","author.id","profile.nickname"])
       .where({slug})
       .loadRelationCountAndMap("blog.likes","blog.likes")
@@ -210,27 +210,28 @@ export class BlogService {
   }
   async likeToggle(blogId:number){
     const userId=this.request.user?.id
-    const blog=this.checkExistBlogById(blogId)
-    const isLiked=await this.blogLikerepository.findOneBy({blogId})
+    await this.checkExistBlogById(blogId)
+    const isLiked=await this.blogLikerepository.findOneBy({blogId,userId})
     let message=PublicMessage.Liked
     if(isLiked){
       message=PublicMessage.Disliked
+      await this.blogLikerepository.remove(isLiked)
     }else{
       await this.blogLikerepository.insert({
         blogId,
         userId
       })
-
     }
     return {message}
   }
   async bookMarkToggle(blogId:number){
     const userId=this.request.user?.id
-    const blog=this.checkExistBlogById(blogId)
-    const isBookMarked=await this.blogBookmarkrepository.findOneBy({blogId})
+    await this.checkExistBlogById(blogId)
+    const isBookMarked=await this.blogBookmarkrepository.findOneBy({blogId,userId})
     let message=PublicMessage.BookMarkrd
     if(isBookMarked){
       message=PublicMessage.UnBookMarked
+      await this.blogBookmarkrepository.remove(isBookMarked)
     }else{
       await this.blogBookmarkrepository.insert({
         blogId,
